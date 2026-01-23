@@ -1,0 +1,29 @@
+[
+  {
+    "input": {
+      "input": "I absolutely love this product! It has exceeded all my expectations."
+    },
+    "expected_output": {
+      "output": "Positive"
+    },
+    "reasoning": null
+  },
+  {
+    "input": {
+      "input": "This service was terrible. I waited for over an hour and no one helped me."
+    },
+    "expected_output": {
+      "output": "Negative"
+    },
+    "reasoning": null
+  },
+  {
+    "input": {
+      "input": "The meeting is scheduled for 3 PM tomorrow in the conference room."
+    },
+    "expected_output": {
+      "output": "Neutral"
+    },
+    "reasoning": null
+  }
+]

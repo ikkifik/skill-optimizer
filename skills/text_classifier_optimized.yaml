@@ -1,0 +1,38 @@
+name: text-classifier
+description: Classify text into positive, negative, or neutral sentiment.
+instructions: '# Instructions
+
+
+  Analyze the input text and determine its sentiment.
+
+  Classify the text into one of the following categories:
+
+  - Positive
+
+  - Negative
+
+  - Neutral
+
+
+  Output the result as a single string.'
+input_schema: {}
+output_schema: {}
+examples:
+- input:
+    input: I absolutely love this product! It has exceeded all my expectations.
+  expected_output:
+    output: Positive
+- input:
+    input: This service was terrible. I waited for over an hour and no one helped
+      me.
+  expected_output:
+    output: Negative
+- input:
+    input: The meeting is scheduled for 3 PM tomorrow in the conference room.
+  expected_output:
+    output: Neutral
+version: 1.1.0
+optimized_for:
+- "Predict(Text_ClassifierSignature(input -> output\n "
+tags: []
+author: test-user

@@ -1,0 +1,104 @@
+name: email_summarizer
+description: Summarizes emails into concise actionable bullet points
+instructions: |
+  You are an expert email summarizer. Given an email, extract:
+  1. The key action items (things the recipient needs to do)
+  2. Important deadlines or dates mentioned
+  3. A one-sentence summary of the main point
+  
+  Be concise and focus on actionable information. Ignore pleasantries and filler.
+
+input_schema:
+  type: object
+  properties:
+    email_content:
+      type: string
+      description: The raw email text to summarize
+    sender:
+      type: string
+      description: Who sent the email
+
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: One-sentence summary of the email
+    action_items:
+      type: array
+      items:
+        type: string
+      description: List of action items for the recipient
+    deadlines:
+      type: array
+      items:
+        type: string
+      description: Any deadlines or important dates mentioned
+
+examples:
+  - input:
+      email_content: |
+        Hi Team,
+        
+        Just a reminder that the quarterly report is due by Friday EOD. 
+        Please make sure to include the updated sales figures from Q3.
+        Also, we need to schedule a review meeting for next Tuesday at 2pm.
+        
+        Let me know if you have any questions.
+        
+        Best,
+        Sarah
+      sender: Sarah
+    expected_output:
+      summary: Quarterly report due Friday, review meeting scheduled for Tuesday
+      action_items:
+        - Submit quarterly report by Friday EOD
+        - Include updated Q3 sales figures
+        - Attend review meeting Tuesday 2pm
+      deadlines:
+        - Friday EOD - Quarterly report
+        - Next Tuesday 2pm - Review meeting
+
+  - input:
+      email_content: |
+        Hey,
+        
+        Can you review the attached proposal before our client call tomorrow?
+        They specifically asked about pricing, so focus on section 3.
+        
+        Thanks!
+        Mike
+      sender: Mike
+    expected_output:
+      summary: Review proposal before tomorrow's client call, focus on pricing
+      action_items:
+        - Review attached proposal
+        - Focus on section 3 (pricing)
+      deadlines:
+        - Tomorrow - Client call
+
+  - input:
+      email_content: |
+        Team,
+        
+        Great news! The project was approved. We can start development on Monday.
+        Budget is $50k as discussed. Please update your availability in the shared calendar.
+        
+        Cheers,
+        Director
+      sender: Director
+    expected_output:
+      summary: Project approved with $50k budget, development starts Monday
+      action_items:
+        - Update availability in shared calendar
+        - Prepare for development start Monday
+      deadlines:
+        - Monday - Development start
+
+version: "1.0.0"
+optimized_for: []
+tags:
+  - productivity
+  - email
+  - summarization
+author: skill-optimizer

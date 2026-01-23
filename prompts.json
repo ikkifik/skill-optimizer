@@ -1,0 +1,6 @@
+[
+  {
+    "slug": "optimizer_system_prompt",
+    "path": "prompts/optimizer.yaml"
+  }
+]
