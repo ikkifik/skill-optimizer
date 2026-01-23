@@ -224,7 +224,7 @@ skill-optimizer/
 │   └── services/         # Centralized skill management
 ├── skills/               # Skill definitions
 │   ├── email_summarizer/
-│   │   ├── SKILL.yaml    # Skill definition
+│   │   ├── SKILL.md      # Skill definition
 │   │   └── TRAINING.json # Training examples
 │   └── text_classifier/
 │       └── SKILL.md      # Markdown format skill
@@ -242,7 +242,7 @@ Skills can be defined in **YAML** or **Markdown** format.
 ### YAML Format (Recommended)
 
 ```yaml
-# skills/my_skill/SKILL.yaml
+# skills/my_skill/SKILL.md
 name: my_skill
 description: What this skill does
 instructions: |
