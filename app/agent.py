@@ -1,7 +1,7 @@
 """Agno Agent wrapper for Skill Optimizer with standalone tool functions."""
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+from agno.models.mistral import MistralChat
 from pathlib import Path
 from typing import Optional
 
@@ -143,7 +143,7 @@ def compare_skills(
 
 def create_skill_optimizer_agent(
     skills_dir: str = "skills",
-    model_id: str = "gpt-4o",
+    model_id: str = "mistral-large-latest",
     **kwargs
 ) -> Agent:
     """
@@ -151,7 +151,7 @@ def create_skill_optimizer_agent(
     
     Args:
         skills_dir: Directory containing skills
-        model_id: Model ID for reasoning (default: gpt-4o)
+        model_id: Model ID for reasoning (default: mistral-large-latest)
         **kwargs: Additional arguments passed to Agent
         
     Returns:
@@ -165,7 +165,7 @@ def create_skill_optimizer_agent(
             "You can analyze skills for potential improvements, generate synthetic training data, "
             "and run powerful optimization algorithms like MIPROv2 and BootstrapFewShot."
         ),
-        model=OpenAIChat(id=model_id),
+        model=MistralChat(id=model_id),
         instructions=[
             "Always start by analyzing a skill before optimizing it.",
             "If a skill lacks training data, offer to generate it.",
@@ -205,7 +205,7 @@ class SkillOptimizerAgent(Agent):
         super().__init__(
             name=name,
             description=description,
-            model=OpenAIChat(id="gpt-4o"),
+            model=MistralChat(id="mistral-large-latest"),
             instructions=[
                 "Always start by analyzing a skill before optimizing it.",
                 "If a skill lacks training data, offer to generate it.",

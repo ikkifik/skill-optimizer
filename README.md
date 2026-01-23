@@ -283,7 +283,7 @@ DSPY_MODEL=openai/gpt-4o-mini
 
 The optimizer automatically selects a model in this order:
 1. `DSPY_MODEL` environment variable (if set)
-2. Mistral (if `MISTRAL_API_KEY` present)
+2. Mistral (if `MISTRAL_API_KEY` present) ← **Primary**
 3. OpenAI (if `OPENAI_API_KEY` present)
 4. Gemini (if `GEMINI_API_KEY` present)
 

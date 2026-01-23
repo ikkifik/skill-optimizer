@@ -12,7 +12,7 @@ def main():
     # Create the optimizer agent
     agent = create_skill_optimizer_agent(
         skills_dir="skills",
-        model_id="gpt-4o"  # or "gpt-4o-mini" for faster/cheaper
+        model_id="mistral-large-latest"  # Uses Mistral as primary provider
     )
     
     print("🤖 Skill Optimizer Agent Ready!")
