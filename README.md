@@ -70,7 +70,28 @@ skill-optimizer compare email_summarizer email_summarizer_optimized
 
 # Create a new skill template
 skill-optimizer create my_new_skill --description "A skill that does X"
+
+# Export skill to Agno Knowledge Base
+skill-optimizer export-knowledge email_summarizer --format json
 ```
+
+### ✨ Agno Integration
+
+**Dynamic Few-Shot Learning**:
+Export optimized skills to Agno Knowledge Base to let your agents retrieve relevant examples at runtime:
+
+```bash
+skill-optimizer export-knowledge email_summarizer --vector-db lancedb
+```
+
+This generates a code snippet you can paste directly into your Agno agent application.
+
+**Enhanced Agent**:
+The included `SkillOptimizerAgent` now supports:
+- **Persistent Memory**: Remembers conversation context across sessions (SQLite backend).
+- **Structured Output**: Returns analysis results as Pydantic models.
+- **Reasoning**: Uses Chain-of-Thought for complex optimization tasks.
+
 
 ### Example Output
 

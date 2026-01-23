@@ -2,14 +2,42 @@
 
 from agno.agent import Agent
 from agno.models.mistral import MistralChat
+from agno.db.sqlite import SqliteDb
 from pathlib import Path
 from typing import Optional
+from pydantic import BaseModel, Field
 
 from app.models.skill import Skill
 from app.services.skill_service import SkillService
 from app.pipeline.optimizer import SkillOptimizer
 from app.pipeline.generator import TrainingDataGenerator
 from app.pipeline.analyzer import OptimizationPotentialAnalyzer
+
+
+# --- Structured Output Models ---
+
+class SkillAnalysisResult(BaseModel):
+    """Structured output for skill analysis."""
+    
+    skill_name: str = Field(..., description="Name of the analyzed skill")
+    baseline_score: float = Field(..., description="Current performance score (0-1)")
+    estimated_ceiling: float = Field(..., description="Maximum achievable score")
+    improvement_potential: float = Field(..., description="Percentage improvement possible")
+    recommended_strategy: str = Field(..., description="Best optimization strategy to use")
+    recommendation: str = Field(..., description="Human-readable recommendation")
+    weak_areas: list[str] = Field(default_factory=list, description="Areas needing improvement")
+
+
+class OptimizationReport(BaseModel):
+    """Structured output for optimization results."""
+    
+    skill_name: str
+    original_score: float
+    optimized_score: float
+    improvement_percent: float
+    strategy_used: str
+    output_path: str
+    summary: str = Field(..., description="Brief summary of what was improved")
 
 
 # --- Standalone Tool Functions ---
@@ -139,11 +167,45 @@ def compare_skills(
         return f"Error comparing skills: {str(e)}"
 
 
+def export_to_knowledge(
+    skill_name: str,
+    format: str = "json",
+    skills_dir: str = "skills"
+) -> str:
+    """
+    Export skill examples to Agno Knowledge Base format.
+    
+    Args:
+        skill_name: Name of the skill to export
+        format: Export format (json or markdown)
+        skills_dir: Directory containing skills
+        
+    Returns:
+        Path to exported knowledge files
+    """
+    try:
+        from app.pipeline.knowledge_exporter import KnowledgeExporter
+        
+        service = SkillService(skills_dir)
+        skill = service.load(skill_name)
+        exporter = KnowledgeExporter(skill)
+        
+        if format == "json":
+            path = exporter.export_json()
+            return f"Exported knowledge to: {path}"
+        else:
+            paths = exporter.export_documents()
+            return f"Exported {len(paths)} documents to: {paths[0].parent}/"
+    except Exception as e:
+        return f"Error exporting knowledge: {str(e)}"
+
+
 # --- Agent Factory ---
 
 def create_skill_optimizer_agent(
     skills_dir: str = "skills",
     model_id: str = "mistral-large-latest",
+    enable_memory: bool = True,
     **kwargs
 ) -> Agent:
     """
@@ -152,36 +214,50 @@ def create_skill_optimizer_agent(
     Args:
         skills_dir: Directory containing skills
         model_id: Model ID for reasoning (default: mistral-large-latest)
+        enable_memory: Enable conversation memory (default: True)
         **kwargs: Additional arguments passed to Agent
         
     Returns:
         Configured Agno Agent with optimization tools
     """
-    return Agent(
-        name="Skill Optimizer",
-        description=(
+    agent_kwargs = {
+        "name": "Skill Optimizer",
+        "description": (
             "You are an expert AI Engineer and Prompt Optimizer. "
             "Your goal is to help users improve their agent skills using data-driven optimization. "
             "You can analyze skills for potential improvements, generate synthetic training data, "
             "and run powerful optimization algorithms like MIPROv2 and BootstrapFewShot."
         ),
-        model=MistralChat(id=model_id),
-        instructions=[
+        "model": MistralChat(id=model_id),
+        "instructions": [
             "Always start by analyzing a skill before optimizing it.",
             "If a skill lacks training data, offer to generate it.",
             "When comparing skills, present the results in a clear markdown table.",
-            "Explain your reasoning for choosing a specific optimization strategy."
+            "Explain your reasoning for choosing a specific optimization strategy.",
+            "After optimization, suggest exporting to Knowledge Base for dynamic few-shot.",
         ],
-        tools=[
+        "tools": [
             analyze_skill,
             generate_training_data,
             optimize_skill,
-            compare_skills
+            compare_skills,
+            export_to_knowledge,
         ],
-        markdown=True,
-        show_tool_calls=True,
-        **kwargs
-    )
+        "markdown": True,
+        "show_tool_calls": True,
+        "reasoning": True,  # Enable chain-of-thought reasoning
+    }
+    
+    # Add memory if enabled
+    if enable_memory:
+        agent_kwargs["db"] = SqliteDb(
+            table_name="agent_sessions",
+            db_file="metrics/agent_memory.db"
+        )
+        agent_kwargs["add_history_to_messages"] = True
+    
+    agent_kwargs.update(kwargs)
+    return Agent(**agent_kwargs)
 
 
 # --- Backwards-compatible class ---
@@ -210,16 +286,24 @@ class SkillOptimizerAgent(Agent):
                 "Always start by analyzing a skill before optimizing it.",
                 "If a skill lacks training data, offer to generate it.",
                 "When comparing skills, present the results in a clear markdown table.",
-                "Explain your reasoning for choosing a specific optimization strategy."
+                "Explain your reasoning for choosing a specific optimization strategy.",
             ],
             tools=[
                 analyze_skill,
                 generate_training_data,
                 optimize_skill,
-                compare_skills
+                compare_skills,
+                export_to_knowledge,
             ],
+            db=SqliteDb(
+                table_name="agent_sessions",
+                db_file="metrics/agent_memory.db"
+            ),
+            add_history_to_messages=True,
             markdown=True,
             show_tool_calls=True,
+            reasoning=True,
             **kwargs
         )
         self.skills_dir = skills_dir
+

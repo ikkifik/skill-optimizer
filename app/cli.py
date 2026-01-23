@@ -259,9 +259,53 @@ def generate(
     console.print(f"[green]Generated {len(examples)} examples saved to: {out_path}[/green]")
 
 
+@app.command("export-knowledge")
+def export_knowledge(
+    skill_name: str = typer.Argument(..., help="Name of the skill to export"),
+    format: str = typer.Option("json", help="Export format: json or markdown"),
+    output: Optional[str] = typer.Option(None, help="Output path"),
+    vector_db: str = typer.Option("lancedb", help="Vector DB for config snippet: lancedb, pgvector, qdrant"),
+    skills_dir: str = typer.Option("skills", help="Directory containing skills")
+):
+    """Export skill examples to Agno Knowledge Base format for dynamic few-shot learning."""
+    try:
+        skill = Skill.load(skill_name, skills_dir)
+    except FileNotFoundError:
+        console.print(f"[red]Skill '{skill_name}' not found in {skills_dir}/[/red]")
+        raise typer.Exit(1)
+    
+    if not skill.examples:
+        console.print(f"[yellow]Warning: Skill has no examples to export. Run 'generate' first.[/yellow]")
+        raise typer.Exit(1)
+    
+    from app.pipeline.knowledge_exporter import KnowledgeExporter, create_agno_knowledge_config
+    
+    exporter = KnowledgeExporter(skill)
+    
+    console.print(f"\n[bold]Exporting knowledge for: {skill.name}[/bold]")
+    console.print(f"Examples: {len(skill.examples)}")
+    
+    if format == "json":
+        out_path = Path(output) if output else None
+        path = exporter.export_json(out_path)
+        console.print(f"\n[green]✓ Exported to: {path}[/green]")
+    elif format == "markdown":
+        out_dir = Path(output) if output else None
+        paths = exporter.export_documents(out_dir)
+        console.print(f"\n[green]✓ Exported {len(paths)} documents to: {paths[0].parent}/[/green]")
+    else:
+        console.print(f"[red]Unknown format: {format}. Use 'json' or 'markdown'.[/red]")
+        raise typer.Exit(1)
+    
+    # Show usage snippet
+    console.print("\n[bold cyan]Agno Integration Code:[/bold cyan]")
+    config_code = create_agno_knowledge_config(skill, vector_db=vector_db)
+    console.print(Panel(config_code, title=f"Usage with {vector_db}", border_style="blue"))
+
 
 def main():
     app()
+
 
 
 if __name__ == "__main__":
