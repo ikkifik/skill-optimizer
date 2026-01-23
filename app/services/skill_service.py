@@ -34,7 +34,7 @@ class SkillService:
     
     def save(self, skill: Skill, filename: Optional[str] = None) -> Path:
         """
-        Save a skill to disk.
+        Save a skill to disk (defaults to SKILL.md Markdown format).
         
         Args:
             skill: The skill to save
@@ -43,22 +43,26 @@ class SkillService:
         Returns:
             Path where skill was saved
         """
+        from app.pipeline.parsers import MarkdownSkillParser
+        
         if filename:
             output_path = self.skills_dir / filename
         else:
             # Check if structured directory exists
             skill_dir = self.skills_dir / skill.name
             if skill_dir.exists() and skill_dir.is_dir():
-                output_path = skill_dir / "SKILL.yaml"
+                output_path = skill_dir / "SKILL.md"
             else:
-                output_path = self.skills_dir / f"{skill.name}.yaml"
+                # Default to flat markdown file
+                output_path = self.skills_dir / f"{skill.name}.md"
         
-        skill.save(output_path)
+        # Use Markdown parser to save
+        MarkdownSkillParser.save(skill, output_path)
         return output_path
     
     def save_optimized(self, skill: Skill) -> Path:
         """
-        Save an optimized skill with the _optimized suffix.
+        Save an optimized skill with the _optimized suffix (Markdown format).
         
         Args:
             skill: The optimized skill to save
@@ -66,8 +70,10 @@ class SkillService:
         Returns:
             Path where skill was saved
         """
-        output_path = self.skills_dir / f"{skill.name}_optimized.yaml"
-        skill.save(output_path)
+        from app.pipeline.parsers import MarkdownSkillParser
+        
+        output_path = self.skills_dir / f"{skill.name}_optimized.md"
+        MarkdownSkillParser.save(skill, output_path)
         return output_path
     
     def save_training_data(
@@ -146,8 +152,10 @@ class SkillService:
         output_dir = self.skills_dir / name
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        skill_path = output_dir / "SKILL.yaml"
-        skill.save(skill_path)
+        skill_path = output_dir / "SKILL.md"
+        
+        from app.pipeline.parsers import MarkdownSkillParser
+        MarkdownSkillParser.save(skill, skill_path)
         
         # Create empty training data file
         training_path = output_dir / "TRAINING.json"
@@ -169,10 +177,10 @@ class SkillService:
             
         for item in self.skills_dir.iterdir():
             if item.is_dir():
-                # Check for SKILL.yaml or SKILL.md
-                if (item / "SKILL.yaml").exists() or (item / "SKILL.md").exists():
+                # Check for SKILL.md or SKILL.yaml
+                if (item / "SKILL.md").exists() or (item / "SKILL.yaml").exists():
                     skills.append(item.name)
-            elif item.suffix in (".yaml", ".md") and not item.name.startswith("_"):
+            elif item.suffix in (".md", ".yaml") and not item.name.startswith("_"):
                 # Flat skill file
                 skills.append(item.stem)
         

@@ -78,11 +78,16 @@ class Skill(BaseModel):
         return cls(**data)
     
     def save(self, path: str | Path) -> None:
-        """Save skill to YAML file."""
+        """Save skill to file (supports .yaml and .md)."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w") as f:
-            f.write(self.to_yaml())
+        
+        if path.suffix == ".md":
+            from app.pipeline.parsers import MarkdownSkillParser
+            MarkdownSkillParser.save(self, path)
+        else:
+            with open(path, "w") as f:
+                f.write(self.to_yaml())
     
     @classmethod
     def load(cls, name: str, skills_dir: str = "skills") -> "Skill":

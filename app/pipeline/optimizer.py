@@ -21,6 +21,7 @@ OptimizationStrategy = Literal[
     "knn_fewshot",           # K-Nearest Neighbor example selection
     "copro",                 # Contrastive Prompt Optimization
     "ensemble",              # Ensemble of multiple optimized modules
+    "auto",                  # Automatically select best strategy
 ]
 
 
@@ -64,6 +65,51 @@ class SkillOptimizer:
         self.max_bootstrapped_demos = max_bootstrapped_demos
         self.max_labeled_demos = max_labeled_demos
     
+    def _auto_select_strategy(self, skill: Skill, examples_count: int) -> str:
+        """
+        Automatically select the best optimization strategy based on skill characteristics.
+        
+        Logic:
+        1. Low data (< 5 examples) -> bootstrap_fewshot (robust)
+        2. Medium data (5-20) -> mipro_v2 (optimizes instructions + examples)
+        3. Complex reasoning (detected in instructions) -> simba or bootstrap_rs
+        4. Alignment focus -> gepa
+        """
+        # Detect complexity
+        is_complex = any(term in skill.instructions.lower() 
+                        for term in ["reasoning", "think step by step", "complex", "analyze"])
+        
+        print(f"[dim]Auto-detecting strategy for '{skill.name}' ({examples_count} examples)...[/dim]")
+        
+        if examples_count < 5:
+            # Low data regime: BootstrapFewShot is most robust
+            print("[dim]Low data detected (n<5). Selected: bootstrap_fewshot[/dim]")
+            return "bootstrap_fewshot"
+            
+        if is_complex and examples_count >= 5:
+            # Complex task with sufficient data: SIMBA or BootstrapRS
+            # SIMBA is state-of-the-art for reasoning
+            try:
+                from dspy.teleprompt import SIMBA
+                print("[dim]Complex task detected. Selected: simba[/dim]")
+                return "simba"
+            except ImportError:
+                print("[dim]Complex task detected (SIMBA unavailable). Selected: bootstrap_rs[/dim]")
+                return "bootstrap_rs"
+                
+        if examples_count >= 10:
+            # High data regime: MIPROv2 is best for instruction optimization
+            try:
+                from dspy.teleprompt import MIPROv2
+                print("[dim]High data detected (n>=10). Selected: mipro_v2[/dim]")
+                return "mipro_v2"
+            except ImportError:
+                pass
+                
+        # Default fallback
+        print("[dim]Default selection: bootstrap_fewshot[/dim]")
+        return "bootstrap_fewshot"
+
     def analyze(self, skill: Skill, model: Optional[str] = None) -> OptimizationAnalysis:
         """
         Analyze optimization potential before running optimization.
@@ -109,6 +155,10 @@ class SkillOptimizer:
         
         if not examples:
             raise ValueError(f"Skill '{skill.name}' has no training examples")
+        
+        # Resolve automatic strategy selection
+        if strategy == "auto":
+            strategy = self._auto_select_strategy(skill, len(examples))
         
         # 3. Run optimization based on strategy
         if strategy == "bootstrap_fewshot":

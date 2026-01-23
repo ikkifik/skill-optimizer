@@ -106,7 +106,7 @@ def generate_training_data(
 
 def optimize_skill(
     skill_name: str, 
-    strategy: str = "bootstrap_fewshot",
+    strategy: str = "auto",
     target_model: Optional[str] = None,
     skills_dir: str = "skills"
 ) -> str:

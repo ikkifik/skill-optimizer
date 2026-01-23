@@ -105,7 +105,7 @@ def analyze(
 @app.command()
 def optimize(
     skill_name: str = typer.Argument(..., help="Name of the skill to optimize"),
-    strategy: str = typer.Option("bootstrap_fewshot", help="Optimization strategy"),
+    strategy: str = typer.Option("auto", help="Optimization strategy (auto, bootstrap_fewshot, mipro_v2, gepa, simba, etc.)"),
     model: Optional[str] = typer.Option(None, help="Target model to optimize for"),
     skills_dir: str = typer.Option("skills", help="Directory containing skills"),
     output: Optional[str] = typer.Option(None, help="Output path for optimized skill")
@@ -131,12 +131,15 @@ def optimize(
     console.print("\n" + result.comparison.to_markdown_table())
     
     # Save optimized skill
+    # Save optimized skill
     if output:
         output_path = Path(output)
     else:
-        output_path = Path(skills_dir) / f"{skill_name}_optimized.yaml"
+        output_path = Path(skills_dir) / f"{skill_name}_optimized.md"
     
-    result.optimized_skill.save(output_path)
+    # Use Markdown parser via Service or directly
+    from app.pipeline.parsers import MarkdownSkillParser
+    MarkdownSkillParser.save(result.optimized_skill, output_path)
     console.print(f"\n[green]Optimized skill saved to: {output_path}[/green]")
 
 
