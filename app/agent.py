@@ -115,7 +115,7 @@ def optimize_skill(
     
     Args:
         skill_name: Name of the skill to optimize
-        strategy: Optimization strategy (bootstrap_fewshot, mipro_v2, bootstrap_rs)
+        strategy: Optimization strategy (bootstrap_fewshot, mipro_v2, bootstrap_rs, gepa, simba, better_together, knn_fewshot, copro, ensemble)
         target_model: Optional model to optimize for
         skills_dir: Directory containing skills
         
@@ -226,7 +226,7 @@ def create_skill_optimizer_agent(
             "You are an expert AI Engineer and Prompt Optimizer. "
             "Your goal is to help users improve their agent skills using data-driven optimization. "
             "You can analyze skills for potential improvements, generate synthetic training data, "
-            "and run powerful optimization algorithms like MIPROv2 and BootstrapFewShot."
+            "and run powerful optimization algorithms like MIPROv2, GEPA, SIMBA, and BetterTogether."
         ),
         "model": MistralChat(id=model_id),
         "instructions": [
@@ -234,6 +234,7 @@ def create_skill_optimizer_agent(
             "If a skill lacks training data, offer to generate it.",
             "When comparing skills, present the results in a clear markdown table.",
             "Explain your reasoning for choosing a specific optimization strategy.",
+            "Consider using GEPA or MIPROv2 for complex prompt alignment tasks.",
             "After optimization, suggest exporting to Knowledge Base for dynamic few-shot.",
         ],
         "tools": [

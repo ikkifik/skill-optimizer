@@ -73,6 +73,11 @@ skill-optimizer create my_new_skill --description "A skill that does X"
 
 # Export skill to Agno Knowledge Base
 skill-optimizer export-knowledge email_summarizer --format json
+
+# Use advanced optimization strategies
+skill-optimizer optimize email_summarizer --strategy gepa      # Explanation-based
+skill-optimizer optimize email_summarizer --strategy mipro_v2  # Metric-driven
+skill-optimizer optimize email_summarizer --strategy simba     # Multi-step bootstrapping
 ```
 
 ### ✨ Agno Integration
@@ -91,6 +96,17 @@ The included `SkillOptimizerAgent` now supports:
 - **Persistent Memory**: Remembers conversation context across sessions (SQLite backend).
 - **Structured Output**: Returns analysis results as Pydantic models.
 - **Reasoning**: Uses Chain-of-Thought for complex optimization tasks.
+
+### 🚀 Advanced Optimizers
+
+Now supports state-of-the-art DSPy strategies:
+- **GEPA** (Grounded Explanation-based Prompt Alignment): Uses explanations to improve prompts.
+- **MIPROv2**: Jointly optimizes instructions and examples using a metric.
+- **SIMBA**: Signature-Based Multi-step Bootstrapping for complex reasoning.
+- **BetterTogether**: Combines multiple strategies for best results.
+- **KNNFewShot**: Selects examples based on semantic similarity.
+- **COPRO**: Contrastive Prompt Optimization.
+
 
 
 ### Example Output
