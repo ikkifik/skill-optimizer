@@ -59,7 +59,8 @@ configure_dspy()
 
 app = typer.Typer(
     name="skill-optimizer",
-    help="Optimize agent skills using DSPy teleprompters"
+    help="Optimize agent skills using DSPy teleprompters",
+    context_settings={"help_option_names": ["-h", "--help"]}
 )
 console = Console()
 
