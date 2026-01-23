@@ -12,6 +12,14 @@ This directory contains runnable examples demonstrating how to use the Skill Opt
 
 ## Running Examples
 
+First, install the CLI tool globally:
+
+```bash
+uv tool install -e .
+```
+
+Then run the examples:
+
 ```bash
 # From the project root
 cd skill-optimizer

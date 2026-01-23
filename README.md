@@ -30,16 +30,24 @@ Transform underperforming prompts into high-quality, production-ready skills wit
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/Ash-Blanc/skill-optimizer.git
 cd skill-optimizer
 
-# Install dependencies
-uv sync
+# Install as a CLI tool (recommended)
+uv tool install -e .
 
 # Set up environment variables
 cp .env.example .env
 # Add your OPENAI_API_KEY, MISTRAL_API_KEY, or GEMINI_API_KEY
 ```
+
+After installation, the `skill-optimizer` command is available globally:
+
+```bash
+skill-optimizer --help
+```
+
+> **Note**: If you prefer not to install globally, you can use `uv run skill-optimizer` instead.
 
 ---
 
@@ -49,25 +57,25 @@ cp .env.example .env
 
 ```bash
 # Analyze a skill's optimization potential
-uv run skill-optimizer analyze email_summarizer
+skill-optimizer analyze email_summarizer
 
 # Generate training data for a skill
-uv run skill-optimizer generate email_summarizer --count 10
+skill-optimizer generate email_summarizer --count 10
 
 # Optimize a skill
-uv run skill-optimizer optimize email_summarizer --strategy bootstrap_fewshot
+skill-optimizer optimize email_summarizer --strategy bootstrap_fewshot
 
 # Compare two skill versions
-uv run skill-optimizer compare email_summarizer email_summarizer_optimized
+skill-optimizer compare email_summarizer email_summarizer_optimized
 
 # Create a new skill template
-uv run skill-optimizer create my_new_skill --description "A skill that does X"
+skill-optimizer create my_new_skill --description "A skill that does X"
 ```
 
 ### Example Output
 
 ```
-$ uv run skill-optimizer analyze email_summarizer
+$ skill-optimizer analyze email_summarizer
 
 ┌────────────────────────────────────────┐
 │ Optimization Potential Analysis        │
@@ -244,13 +252,13 @@ The body of the markdown becomes the instructions.
 
 ```bash
 # Default: BootstrapFewShot (recommended starting point)
-uv run skill-optimizer optimize my_skill
+skill-optimizer optimize my_skill
 
 # For skills with poor instructions
-uv run skill-optimizer optimize my_skill --strategy mipro_v2
+skill-optimizer optimize my_skill --strategy mipro_v2
 
 # For skills with many training examples
-uv run skill-optimizer optimize my_skill --strategy bootstrap_rs
+skill-optimizer optimize my_skill --strategy bootstrap_rs
 ```
 
 ---
