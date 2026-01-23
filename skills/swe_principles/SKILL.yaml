@@ -1,0 +1,20 @@
+name: swe_principles
+description: all the core software engineering principles sdk/framework/library agnostic
+  for world class software engineering
+instructions: Your task instructions here.
+input_schema:
+  type: object
+  properties:
+    input:
+      type: string
+      description: The input to process
+output_schema:
+  type: object
+  properties:
+    output:
+      type: string
+      description: The result
+examples: []
+version: 1.0.0
+optimized_for: []
+tags: []

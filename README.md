@@ -71,8 +71,24 @@ skill-optimizer compare email_summarizer email_summarizer_optimized
 # Create a new skill template (Creates skills/my_new_skill/SKILL.md)
 skill-optimizer create my_new_skill
 
+# Generate synthetic training data (saves to skills/my_new_skill/TRAINING.json)
+skill-optimizer generate my_new_skill --count 10
+
 # Optimize skill (automatically selects best strategy)
 skill-optimizer optimize my_new_skill
+```
+
+### 🛠️ Common Commands
+
+**Generate Training Data**:
+If you don't have enough examples, generate them using an LLM (requires an API key):
+
+```bash
+# Generate 10 examples and save to the default TRAINING.json
+skill-optimizer generate email_summarizer --count 10
+
+# Save to a specific file (useful for creating validation sets)
+skill-optimizer generate email_summarizer --count 20 --output validation_set.json
 ```
 
 ### ✨ Agno Integration

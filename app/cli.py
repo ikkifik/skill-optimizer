@@ -175,36 +175,13 @@ def create(
     skills_dir: str = typer.Option("skills", help="Directory to create skill in")
 ):
     """Create a new skill template."""
-    skill = Skill(
-        name=name,
-        description=description or f"A skill for {name}",
-        instructions="Your task instructions here.",
-        input_schema={
-            "type": "object",
-            "properties": {
-                "input": {"type": "string", "description": "The input to process"}
-            }
-        },
-        output_schema={
-            "type": "object",
-            "properties": {
-                "output": {"type": "string", "description": "The result"}
-            }
-        },
-        examples=[]
-    )
+    from app.services.skill_service import SkillService
     
-    output_dir = Path(skills_dir) / name
-    output_dir.mkdir(parents=True, exist_ok=True)
+    service = SkillService(skills_dir)
+    skill, path = service.create_skill_template(name, description)
     
-    skill.save(output_dir / "SKILL.yaml")
-    
-    # Create empty training data file
-    training_path = output_dir / "TRAINING.json"
-    training_path.write_text(json.dumps([], indent=2))
-    
-    console.print(f"[green]Created skill template at: {output_dir}/[/green]")
-    console.print("  - SKILL.yaml: Skill definition")
+    console.print(f"[green]Created skill template at: {path}[/green]")
+    console.print("  - SKILL.md: Skill definition (Markdown format)")
     console.print("  - TRAINING.json: Add training examples here (or use 'generate' command)")
 
 
@@ -213,7 +190,7 @@ def generate(
     skill_name: str = typer.Argument(..., help="Name of the skill"),
     count: int = typer.Option(5, help="Number of examples to generate"),
     skills_dir: str = typer.Option("skills", help="Directory containing skills"),
-    output: Optional[str] = typer.Option(None, help="Output file for examples")
+    output: Optional[str] = typer.Option(None, help="Path to save generated examples (default: TRAINING.json in skill dir)")
 ):
     """Generate synthetic training data for a skill using LLM."""
     try:
