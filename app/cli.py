@@ -46,9 +46,9 @@ def configure_dspy():
         lm = dspy.LM(
             model=ollama_model,
             api_base=os.getenv("OLLAMA_API_BASE", "http://127.0.0.1:11434"),
-            temperature=os.getenv("OLLAMA_TEMPERATURE", 0.2),
-            max_tokens=os.getenv("OLLAMA_MAX_TOKENS", 4096),
-            timeout=os.getenv("OLLAMA_TIMEOUT", 1800),
+            temperature=float(os.getenv("OLLAMA_TEMPERATURE", 0.2)),
+            max_tokens=int(os.getenv("OLLAMA_MAX_TOKENS", 4096)),
+            timeout=int(os.getenv("OLLAMA_TIMEOUT", 1800)),
         )
         dspy.configure(lm=lm)
         return 
